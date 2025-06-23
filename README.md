@@ -3,7 +3,7 @@
 > 這個韌體是esp32-cam專用的韌體
 > 通用版本的拍照要自己寫
 ## 驅動 ##
-USB_CH341 driver
+[driver](https://github.com/hey-you-hello/esp32-cam/blob/main/drriver.zip)
 
 ## main.py ##
 介紹
