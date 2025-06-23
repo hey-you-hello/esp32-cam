@@ -2,10 +2,10 @@ import camera
 import io
 import time
 import socket
-
+from machine import Pin
 import sys
-
-
+led=Pin(4,Pin.OUT)
+led.value(0)
 camera.deinit()
 HOST = '0.0.0.0'  
 PORT = 8080       
@@ -31,7 +31,7 @@ def mainf():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     if camera.init():
         camera.framesize(10)
-        #800*600巷素
+        #240x240
         camera.quality(60)  
         print("Camera initialized.")
        
@@ -42,6 +42,11 @@ def mainf():
     while True:
         try:
             s.sendto(camera.capture(),(computer[0],8080))
+            data, address=s.recvfrom(65535)
+            data=int.from_bytes(data,'big')
+            
+            led.value(data)
+                
         except KeyboardInterrupt:
             camera.deinit()
             
