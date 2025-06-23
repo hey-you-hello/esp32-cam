@@ -4,34 +4,41 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import numpy as np
 import cv2
-
+import keyboard
+ev=keyboard.KeyboardEvent
+ON=True.to_bytes()
+OFF=False.to_bytes()
 output_file = "found_ip.txt"
+led_type={'KeyboardEvent(w down)':ON,'KeyboardEvent(s down)':OFF}
+current_type=OFF
+def o(e):
+    global current_type
+    if str(e) not in led_type:
+         print(f'沒有{e}')
+         return 0
+    current_type=led_type[str(e)]
 
-
-if True:
-    for n in range(256):
-        ip = f'192.168.4.{n}'
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            print(f'Trying to connect to {ip}...')
-            s.settimeout(0.2)
-            s.connect((ip, 8080))
-            s.sendall(b'hi am computer')
-            print(f'Successfully sent to {ip}')
+for n in range(256):
+    ip = f'192.168.4.{n}'
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        print(f'Trying to connect to {ip}...')
+        s.settimeout(0.2)
+        s.connect((ip, 8080))
+        s.sendall(b'hi am computer')
+        print(f'Successfully sent to {ip}')
             
            
-            with open(output_file, 'w') as f:  
+        with open(output_file, 'w') as f:  
                 f.write(ip + '\n')
 
-            print(f'IP address {ip} saved to {output_file}')
-            break  
-        except Exception:
-            print(f'{ip} no response')
-        finally:
-            s.close()
-else:
-    with open(output_file, 'r') as f:
-        ip = f.read().strip()  
+        print(f'IP address {ip} saved to {output_file}')
+        break  
+    except Exception:
+        print(f'{ip} no response')
+    finally:
+        s.close()
+
 
 class CameraApp:
     def __init__(self, window, window_title, ip):
@@ -53,8 +60,11 @@ class CameraApp:
     def update(self):
         
             data, address = self.socket.recvfrom(65535)
-            print(f"Received data from {address}, length: {len(data)}")
             
+            print(f"Received data from {address}, length: {len(data)}")
+            keyboard.on_press(o)
+            self.socket.sendto(current_type,address)
+
             
             nparr = np.frombuffer(data, np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
